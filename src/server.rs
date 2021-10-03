@@ -108,8 +108,8 @@ extern "C" fn rust_insert_files_from_go(json: *const c_char) {
 #[no_mangle]
 extern "C" fn rust_insert_filecache_from_go(
  json: *const c_char,
- buf: *const c_uchar,
- len: c_longlong,
+ _buf: *const c_uchar,
+ _len: c_longlong,
 ) {
  let c_str = unsafe { CStr::from_ptr(json) };
  let str = c_str.to_str().unwrap();
