@@ -32,10 +32,17 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-11.0]
-        rust: [stable, beta, nightly]
+        rust: [beta, nightly]
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+
+      - run: go version
+
+      - run: ./build-turbo.sh
+        working-directory: 'rclone'
 
       - uses: hecrj/setup-rust-action@v1
         with:
