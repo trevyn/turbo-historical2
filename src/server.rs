@@ -74,6 +74,7 @@ struct MediaBox {
 }
 
 impl MediaBox {
+ #[allow(dead_code)]
  fn parse(i: &[u8]) -> IResult<&[u8], MediaBox> {
   let (i, size) = be_u32(i)?;
   let (i, ty) = take(4usize)(i)?;
