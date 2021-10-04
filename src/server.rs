@@ -74,7 +74,6 @@ struct MediaBox {
 }
 
 impl MediaBox {
- #[allow(dead_code)]
  fn parse(i: &[u8]) -> IResult<&[u8], MediaBox> {
   let (i, size) = be_u32(i)?;
   let (i, ty) = take(4usize)(i)?;
@@ -109,8 +108,8 @@ extern "C" fn rust_insert_files_from_go(json: *const c_char) {
 #[no_mangle]
 extern "C" fn rust_insert_filecache_from_go(
  json: *const c_char,
- _buf: *const c_uchar,
- _len: c_longlong,
+ buf: *const c_uchar,
+ len: c_longlong,
 ) {
  let c_str = unsafe { CStr::from_ptr(json) };
  let str = c_str.to_str().unwrap();
