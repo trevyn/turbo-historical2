@@ -26,11 +26,13 @@ async fn main() -> Result<(), std::boxed::Box<dyn std::error::Error>> {
  log::debug!("debug enabled");
  log::trace!("trace enabled");
 
- let cstring = CString::new("".to_owned()).unwrap();
+ let _ = std::thread::spawn(|| {
+  let cstring = CString::new("".to_owned()).unwrap();
 
- unsafe {
-  GoListJSON(cstring.as_ptr());
- }
+  unsafe {
+   GoListJSON(cstring.as_ptr());
+  }
+ });
 
  match (opts.key_path, opts.cert_path) {
   (Some(key_path), Some(cert_path)) => {
