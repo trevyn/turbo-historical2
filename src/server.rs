@@ -27,11 +27,8 @@ async fn main() -> Result<(), std::boxed::Box<dyn std::error::Error>> {
  log::trace!("trace enabled");
 
  let _ = std::thread::spawn(|| {
-  let cstring = CString::new("".to_owned()).unwrap();
-
-  unsafe {
-   GoListJSON(cstring.as_ptr());
-  }
+  librclone::initialize();
+  dbg!(librclone::rpc("operations/list", r#"{"fs":"putio:","remote":""}"#)).unwrap();
  });
 
  match (opts.key_path, opts.cert_path) {
