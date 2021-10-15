@@ -2,7 +2,7 @@
 authors = ["trevyn <trevyn-git@protonmail.com>"]
 description = "Template for a fully-configured Turbocharger project with Svelte, Tailwind, and Turbosql."
 edition = "2018"
-name = "bmff-tc"
+name = "turbo"
 publish = false
 version = "0.1.0"
 
@@ -12,7 +12,7 @@ name = "turbocharger_generated"
 path = "src/wasm.rs"
 
 [[bin]]
-name = "bmff-tc"
+name = "turbo"
 path = "src/server.rs"
 
 [dependencies]
