@@ -1,6 +1,7 @@
 mod backend;
 
 use clap::Clap;
+use std::time::Duration;
 
 #[derive(Clap)]
 struct Opts {
@@ -26,10 +27,35 @@ async fn main() -> Result<(), std::boxed::Box<dyn std::error::Error>> {
  log::debug!("debug enabled");
  log::trace!("trace enabled");
 
- let _ = std::thread::spawn(|| {
-  librclone::initialize();
-  dbg!(librclone::rpc("operations/list", r#"{"fs":"putio:","remote":""}"#)).unwrap();
- });
+ //  let _ = std::thread::spawn(|| {
+ //   librclone::initialize();
+ //   dbg!(librclone::rpc("operations/list", r#"{"fs":"putio:","remote":""}"#)).unwrap();
+ //  });
+
+ let sopts = librqbit::session::SessionOptions {
+  disable_dht: false,
+  disable_dht_persistence: false,
+  dht_config: None,
+  peer_id: None,
+  peer_opts: Some(librqbit::peer_connection::PeerConnectionOptions {
+   connect_timeout: Some(Duration::from_secs(10)),
+   ..Default::default()
+  }),
+ };
+
+ let tmp_dir = tempfile::TempDir::new()?;
+ let tmp_path = tmp_dir.into_path();
+
+ dbg!(&tmp_path);
+
+ let session = std::sync::Arc::new(
+  librqbit::session::Session::new_with_opts(
+   tmp_path,
+   librqbit::spawn_utils::BlockingSpawner::new(true),
+   sopts,
+  )
+  .await?,
+ );
 
  match (opts.key_path, opts.cert_path) {
   (Some(key_path), Some(cert_path)) => {
