@@ -6,6 +6,12 @@ name = "turbo"
 publish = false
 version = "0.1.0"
 
+[workspace]
+exclude = ["rqbit"]
+members = [
+  "rqbit/crates/*",
+]
+
 [lib]
 crate-type = ["cdylib", "rlib"]
 name = "turbocharger_generated"

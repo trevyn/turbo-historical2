@@ -1,0 +1,4 @@
+[submodule "rqbit"]
+	path = rqbit
+	url = https://github.com/trevyn/rqbit
+	branch = turbo
