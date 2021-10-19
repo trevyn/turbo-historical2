@@ -1,10 +1,10 @@
 mod backend;
 
-use clap::Clap;
+use clap::Parser;
 use size_format::SizeFormatterBinary as SF;
 use std::time::Duration;
 
-#[derive(Clap)]
+#[derive(clap::Parser)]
 struct Opts {
  #[clap(short, long)]
  cert_path: Option<String>,
