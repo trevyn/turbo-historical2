@@ -1,6 +1,8 @@
 use turbocharger::backend;
 use wasm_bindgen::prelude::*;
 
+pub mod jackett_types;
+
 #[cfg(not(target_arch = "wasm32"))]
 use turbosql::{select, Turbosql};
 

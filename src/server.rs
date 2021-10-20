@@ -1,4 +1,5 @@
 mod backend;
+mod server_mods;
 
 use clap::Parser;
 use size_format::SizeFormatterBinary as SF;
@@ -14,25 +15,7 @@ struct Opts {
  port: u16,
 }
 
-#[tokio::main]
-async fn main() -> Result<(), std::boxed::Box<dyn std::error::Error>> {
- #[derive(rust_embed::RustEmbed)]
- #[folder = "build"]
- struct Frontend;
-
- pretty_env_logger::init_timed();
- let opts = Opts::parse();
-
- log::warn!("warn enabled");
- log::info!("info enabled");
- log::debug!("debug enabled");
- log::trace!("trace enabled");
-
- //  let _ = std::thread::spawn(|| {
- //   librclone::initialize();
- //   dbg!(librclone::rpc("operations/list", r#"{"fs":"putio:","remote":""}"#)).unwrap();
- //  });
-
+async fn do_torrent() -> Result<(), std::boxed::Box<dyn std::error::Error>> {
  let sopts = librqbit::session::SessionOptions {
   disable_dht: false,
   disable_dht_persistence: false,
@@ -78,47 +61,79 @@ async fn main() -> Result<(), std::boxed::Box<dyn std::error::Error>> {
   async move {
    loop {
     session.with_torrents(|torrents| {
-     for (idx, torrent) in torrents.iter().enumerate() {
-      match &torrent.state {
-       librqbit::session::ManagedTorrentState::Initializing => {
-        log::info!("[{}] initializing", idx);
-       },
-       librqbit::session::ManagedTorrentState::Running(handle) => {
-        let peer_stats = handle.torrent_state().peer_stats_snapshot();
-        let stats = handle.torrent_state().stats_snapshot();
-        let speed = handle.speed_estimator();
-        let total = stats.total_bytes;
-        let progress = stats.total_bytes - stats.remaining_bytes;
-        let downloaded_pct = if stats.remaining_bytes == 0 {
-         100f64
-        } else {
-         (progress as f64 / total as f64) * 100f64
-        };
-        log::info!(
-         "[{}]: {:.2}% ({:.2}), down speed {:.2} Mbps, fetched {}, remaining {:.2} of {:.2}, uploaded {:.2}, peers: {{live: {}, connecting: {}, queued: {}, seen: {}}}",
-         idx,
-         downloaded_pct,
-         SF::new(progress),
-         speed.download_mbps(),
-         SF::new(stats.fetched_bytes),
-         SF::new(stats.remaining_bytes),
-         SF::new(total),
-         SF::new(stats.uploaded_bytes),
-         peer_stats.live,
-         peer_stats.connecting,
-         peer_stats.queued,
-         peer_stats.seen,
-        );
-       },
-      }
-     }
-    });
+       for (idx, torrent) in torrents.iter().enumerate() {
+        match &torrent.state {
+         librqbit::session::ManagedTorrentState::Initializing => {
+          log::info!("[{}] initializing", idx);
+         },
+         librqbit::session::ManagedTorrentState::Running(handle) => {
+          let peer_stats = handle.torrent_state().peer_stats_snapshot();
+          let stats = handle.torrent_state().stats_snapshot();
+          let speed = handle.speed_estimator();
+          let total = stats.total_bytes;
+          let progress = stats.total_bytes - stats.remaining_bytes;
+          let downloaded_pct = if stats.remaining_bytes == 0 {
+           100f64
+          } else {
+           (progress as f64 / total as f64) * 100f64
+          };
+          log::info!(
+           "[{}]: {:.2}% ({:.2}), down speed {:.2} Mbps, fetched {}, remaining {:.2} of {:.2}, uploaded {:.2}, peers: {{live: {}, connecting: {}, queued: {}, seen: {}}}",
+           idx,
+           downloaded_pct,
+           SF::new(progress),
+           speed.download_mbps(),
+           SF::new(stats.fetched_bytes),
+           SF::new(stats.remaining_bytes),
+           SF::new(total),
+           SF::new(stats.uploaded_bytes),
+           peer_stats.live,
+           peer_stats.connecting,
+           peer_stats.queued,
+           peer_stats.seen,
+          );
+         },
+        }
+       }
+      });
     tokio::time::sleep(Duration::from_secs(1)).await;
    }
   }
  });
 
  handle.wait_until_completed().await?;
+
+ Ok(())
+}
+
+#[tokio::main]
+async fn main() -> Result<(), std::boxed::Box<dyn std::error::Error>> {
+ #[derive(rust_embed::RustEmbed)]
+ #[folder = "build"]
+ struct Frontend;
+
+ pretty_env_logger::init_timed();
+ let opts = Opts::parse();
+
+ log::warn!("warn enabled");
+ log::info!("info enabled");
+ log::debug!("debug enabled");
+ log::trace!("trace enabled");
+
+ let client = reqwest::Client::builder().cookie_store(true).build().unwrap();
+
+ let resp = client
+  .get("http://localhost:9117/api/v2.0/server/config")
+  .send()
+  .await?
+  .json::<backend::jackett_types::ConfigResponse>()
+  .await?;
+ println!("{:#?}", resp);
+
+ //  let _ = std::thread::spawn(|| {
+ //   librclone::initialize();
+ //   dbg!(librclone::rpc("operations/list", r#"{"fs":"putio:","remote":""}"#)).unwrap();
+ //  });
 
  match (opts.key_path, opts.cert_path) {
   (Some(key_path), Some(cert_path)) => {
