@@ -128,6 +128,21 @@ async fn main() -> Result<(), std::boxed::Box<dyn std::error::Error>> {
   .await?
   .json::<backend::jackett_types::ConfigResponse>()
   .await?;
+
+ println!("{:#?}", resp);
+
+ let api_key = resp.api_key;
+
+ let resp = client
+  .get(format!(
+   "http://localhost:9117/api/v2.0/indexers/all/results?apikey={}&Query=test&Tracker[]=rarbg",
+   api_key
+  ))
+  .send()
+  .await?
+  .json::<backend::jackett_types::JackettResults>()
+  .await?;
+
  println!("{:#?}", resp);
 
  //  let _ = std::thread::spawn(|| {

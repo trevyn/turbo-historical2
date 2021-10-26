@@ -8,33 +8,33 @@ use wasm_bindgen::prelude::*;
 
 #[derive(Deserialize, Debug)]
 pub struct ConfigResponse {
- api_key: String,
- app_version: String,
+ pub api_key: String,
+ pub app_version: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
-struct JackettResults {
- results: Vec<JackettResult>,
+pub struct JackettResults {
+ pub results: Vec<JackettResult>,
 }
 
 #[backend]
 #[serde(rename_all = "PascalCase")]
 #[cfg_attr(not(target_arch = "wasm32"), derive(Turbosql))]
-struct JackettResult {
- rowid: Option<i64>,
- tracker: Option<String>,
- tracker_id: Option<String>,
- category_desc: Option<String>,
- title: Option<String>,
- guid: Option<String>,
- link: Option<String>,
- details: Option<String>,
- publish_date: Option<String>,
+pub struct JackettResult {
+ pub rowid: Option<i64>,
+ pub tracker: Option<String>,
+ pub tracker_id: Option<String>,
+ pub category_desc: Option<String>,
+ pub title: Option<String>,
+ pub guid: Option<String>,
+ pub link: Option<String>,
+ pub details: Option<String>,
+ pub publish_date: Option<String>,
  #[cfg_attr(not(target_arch = "wasm32"), turbosql(skip))]
- category: Option<Vec<i64>>,
- size: Option<i64>,
- seeders: Option<i64>,
- peers: Option<i64>,
- gain: Option<f64>,
+ pub category: Option<Vec<i64>>,
+ pub size: Option<i64>,
+ pub seeders: Option<i64>,
+ pub peers: Option<i64>,
+ pub gain: Option<f64>,
 }
