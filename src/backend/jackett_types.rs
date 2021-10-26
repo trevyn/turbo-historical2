@@ -31,7 +31,7 @@ struct JackettResult {
  link: Option<String>,
  details: Option<String>,
  publish_date: Option<String>,
- #[turbosql(skip)]
+ #[cfg_attr(not(target_arch = "wasm32"), turbosql(skip))]
  category: Option<Vec<i64>>,
  size: Option<i64>,
  seeders: Option<i64>,
