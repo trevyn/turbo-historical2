@@ -2,7 +2,6 @@
 
 use serde::Deserialize;
 use turbocharger::backend;
-#[cfg(not(target_arch = "wasm32"))]
 use turbosql::Turbosql;
 use wasm_bindgen::prelude::*;
 
@@ -20,7 +19,7 @@ pub struct JackettResults {
 
 #[backend]
 #[serde(rename_all = "PascalCase")]
-#[cfg_attr(not(target_arch = "wasm32"), derive(Turbosql))]
+#[derive(Turbosql)]
 pub struct JackettResult {
  pub rowid: Option<i64>,
  pub tracker: Option<String>,
@@ -31,7 +30,7 @@ pub struct JackettResult {
  pub link: Option<String>,
  pub details: Option<String>,
  pub publish_date: Option<String>,
- #[cfg_attr(not(target_arch = "wasm32"), turbosql(skip))]
+ #[turbosql(skip)]
  pub category: Option<Vec<i64>>,
  pub size: Option<i64>,
  pub seeders: Option<i64>,
